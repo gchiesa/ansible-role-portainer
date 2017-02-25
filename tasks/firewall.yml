@@ -1,0 +1,27 @@
+---
+- name: Remove the portainer chain
+  shell: >
+    ( iptables -t filter -D INPUT -j PORTAINER &&
+      iptables -t filter -F PORTAINER &&
+      iptables -t filter -X PORTAINER) || true
+
+- name: Create the portainer chain
+  shell: iptables -t filter -N PORTAINER && iptables -t filter -I INPUT 1 -j PORTAINER
+
+- name: Open port for PORTAINER communication on iptables
+  iptables:
+    table: filter
+    chain: PORTAINER
+    destination_port: "{{ item.port }}"
+    protocol: "{{ item.proto }}"
+    state: present
+    jump: ACCEPT
+    comment: "PORTAINER for port {{ item.port }}/{{ item.proto }}"
+  with_items:
+    - proto: tcp
+      port: 9000
+    - proto: tcp
+      port: 2375
+      
+- name: Iptables save
+  shell: iptables-save > "{{ iptables_config }}"

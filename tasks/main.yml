@@ -1,0 +1,35 @@
+---
+- include: firewall.yml
+
+- name: Create the persistent folder
+  file:
+    name: /docker/portainer
+    state: directory
+
+# tasks file for ansible-role-portainer
+- name: Start portainer
+#   docker_service:
+#     recreate: always
+#     project_name: portainer
+#     definition:
+#         webapp: 
+#             image: portainer/portainer
+#             command: -H unix:///var/run/docker.sock
+#             ports:
+#                 - "9000:9000"
+#             environment:
+#                 - "costraint:node.role == manager"
+#             volumes:
+#                 - /var/run/docker.sock:/var/run/docker.sock
+#   when:
+#     - inventory_hostname in groups['swarm_managers'][0]
+  command: >
+    docker service create 
+        --name portainer 
+        --publish 9000:9000 
+        --constraint 'node.role == manager' 
+        --mount type=bind,source=/docker/portainer,destination=/data
+        portainer/portainer 
+        -H tcp://{{ iputils_ip_external }}:2375
+  when: 
+    - inventory_hostname in groups['swarm_managers'][0]
