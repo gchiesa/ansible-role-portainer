@@ -8,21 +8,6 @@
 
 # tasks file for ansible-role-portainer
 - name: Start portainer
-#   docker_service:
-#     recreate: always
-#     project_name: portainer
-#     definition:
-#         webapp: 
-#             image: portainer/portainer
-#             command: -H unix:///var/run/docker.sock
-#             ports:
-#                 - "9000:9000"
-#             environment:
-#                 - "costraint:node.role == manager"
-#             volumes:
-#                 - /var/run/docker.sock:/var/run/docker.sock
-#   when:
-#     - inventory_hostname in groups['swarm_managers'][0]
   command: >
     docker service create 
         --name portainer 
